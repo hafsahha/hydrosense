@@ -45,9 +45,7 @@ HydroSense adalah proyek sistem monitoring dan otomatisasi hidroponik yang mengg
 
 # Tampilan Aplikasi 
 
-| Tampilan Grafik                               | Tampilan Data & Status                          |
-|----------------------------------------------|------------------------------------------------|
-| <img width="233" alt="Grafik" src="https://github.com/user-attachments/assets/f0107013-8d92-4a0b-acf6-ff1ee1fc3f39" /> | <img width="232" alt="Data & Status" src="https://github.com/user-attachments/assets/2a1cd587-194e-4c5b-8a62-9ff454d0ff4a" /> |
+https://github.com/user-attachments/assets/5091ad32-4771-4685-b755-3fd2159be740
 
 ---
 

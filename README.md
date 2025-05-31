@@ -1,96 +1,96 @@
-# HydroSense - Sistem Monitoring & Otomatisasi Hidroponik
+# Pantanizz – Sistem Monitoring & Otomatisasi Hidroponik Kekinian
 
-HydroSense adalah proyek sistem monitoring dan otomatisasi hidroponik yang menggunakan sensor untuk memantau kondisi larutan nutrisi dan lingkungan seperti suhu, kelembaban, TDS (Total Dissolved Solids), pH, suhu air, dan intensitas cahaya. Data sensor dikirimkan secara real-time menggunakan ESP32 ke broker MQTT, kemudian backend Golang menyediakan REST API untuk aplikasi mobile Flutter yang menampilkan visualisasi data dan status sistem.
+**Pantanizz** adalah sistem monitoring dan otomatisasi hidroponik berbasis IoT yang membantu kamu **pantau tani secara real-time, kapan saja, di mana saja — bahkan sambil tidur!** Dengan teknologi sensor canggih dan aplikasi mobile berbasis Flutter, Pantanizz memudahkan pengelolaan hidroponik secara otomatis, efisien, dan modern.
 
-Sistem ini dirancang untuk memudahkan pertanian hidroponik dengan otomatisasi berbagai komponen berdasarkan data sensor, seperti mengaktifkan pompa air bersih saat TDS terlalu tinggi, menambahkan nutrisi saat TDS rendah, dan menyalakan lampu grow light saat intensitas cahaya rendah.
+---
+
+## Filosofi Nama Pantanizz
+
+* **Pan** = *Pantau* — Fokus pada pemantauan kondisi tanaman dan lingkungan secara real-time.
+* **Tani** = *Tani* — Merujuk pada pertanian, khususnya hidroponik modern.
+* **zz** = *zzz* (tidur) — Menandakan sistem yang bekerja otomatis, sehingga kamu bisa tenang dan istirahat tanpa harus cek manual terus-menerus.
+
+Tagline:
+
+> *Pantau Tani Sambil Tidur*
 
 ---
 
 ## Fitur Utama
 
-- Monitoring parameter hidroponik secara real-time:
-  - Suhu udara dan kelembaban (DHT22)
-  - Suhu air (DS18B20)
-  - TDS (Total Dissolved Solids) untuk mengukur konsentrasi nutrisi
-  - pH untuk mengukur keasaman larutan
-  - Intensitas cahaya (LDR)
-- Kontrol otomatis berbasis parameter:
-  - Pompa air bersih aktif saat TDS > 1200 ppm (pengenceran)
-  - Pompa nutrisi aktif saat TDS < 650 ppm (penambahan nutrisi)
-  - Lampu grow light aktif saat intensitas cahaya rendah (< 1500)
-- Visualisasi data melalui aplikasi Flutter:
-  - Grafik real-time untuk memonitor tren parameter
-  - Indikator status parameter dengan kode warna intuitif
-  - Tab monitor status perangkat (ON/OFF)
-- Arsitektur komunikasi IoT:
-  - ESP32 sebagai controller dan publisher MQTT
-  - Backend Golang sebagai subscriber MQTT dan penyedia REST API
-  - Flutter sebagai aplikasi front-end multi-platform (mobile/web)
+* **Monitoring real-time** parameter hidroponik:
+
+  * Suhu udara & kelembaban (DHT22)
+  * Suhu air (DS18B20)
+  * TDS (Total Dissolved Solids) untuk konsentrasi nutrisi
+  * pH larutan nutrisi
+  * Intensitas cahaya (LDR)
+* **Otomatisasi cerdas berbasis data sensor**:
+
+  * Pompa air bersih menyala otomatis saat TDS > 1200 ppm (pengenceran larutan)
+  * Pompa nutrisi menyala otomatis saat TDS < 650 ppm (penambahan nutrisi)
+  * Lampu grow light otomatis aktif saat intensitas cahaya < 1500 lux
+* **Aplikasi Flutter multi-platform** dengan:
+
+  * Visualisasi grafik tren data waktu nyata
+  * Indikator status parameter dengan kode warna intuitif
+  * Kontrol dan monitoring perangkat secara mudah dan responsif
+* **Arsitektur IoT modern**:
+
+  * ESP32 sebagai sensor dan pengontrol utama
+  * MQTT broker untuk komunikasi cepat dan andal
+  * Backend Golang untuk pengolahan data dan penyedia REST API
+  * Flutter front-end yang responsif untuk mobile dan web
 
 ---
 
 ## Struktur Repo
 
-- `/hydroponic_controller` : Kode program ESP32 (PlatformIO/Arduino) untuk:
-  - Pembacaan sensor (DHT22, DS18B20, TDS, pH, LDR)
-  - Kontrol relay untuk pompa air, nutrisi, dan lampu
-  - Komunikasi dengan broker MQTT (EMQX)
-  - Pengambilan keputusan otomasi berdasarkan nilai sensor
-  
-- `/golang_backend` : Backend server Golang dengan:
-  - MQTT client untuk berlangganan topik dari ESP32
-  - Pengolahan dan penyimpanan data sensor
-  - REST API endpoint untuk aplikasi Flutter
-  - Penambahan timestamp pada data untuk visualisasi
-  
-- `/flutter_app` : Aplikasi monitoring dengan:
-  - Dashboard visualisasi data sensor
-  - Grafik tren parameter waktu-nyata
-  - Status relay dan kondisi sistem
-  - UI responsif untuk web dan mobile
+* `/hydroponic_controller`
+  Firmware ESP32 untuk pembacaan sensor, kontrol relay, dan komunikasi MQTT.
+* `/golang_backend`
+  Backend Golang yang menerima data MQTT, menyimpan, dan menyediakan REST API untuk aplikasi.
+* `/flutter_app`
+  Aplikasi mobile/web Flutter untuk monitoring dan kontrol sistem secara real-time.
 
 ---
 
 ## Cara Menjalankan
 
-1. **ESP32 Firmware**  
-   - Pastikan semua sensor dan relay terhubung dengan benar sesuai dengan pin yang didefinisikan di kode
-   - Sesuaikan kredensial WiFi dan broker MQTT di file konfigurasi jika diperlukan
-   - Upload kode di folder `/hydroponic_controller` ke ESP32 menggunakan:
-     ```bash
-     # Menggunakan PlatformIO
-     cd hydroponic_controller
-     pio run --target upload
-     
-     # Atau dengan Arduino IDE
-     # Buka main.cpp dan upload via Arduino IDE
-     ```
+### 1. Firmware ESP32
 
-2. **Backend Golang**  
-   - Pastikan Go (Golang) terinstall di sistem anda
-   - Instal dependensi yang diperlukan dan jalankan server:
-     ```bash
-     cd golang_backend
-     go mod tidy
-     go run main.go
-     ```
-   - Server akan berjalan di port 8080 dan mulai menerima data dari broker MQTT
-   - Data sensor tersedia di endpoint: `http://localhost:8080/getSensorData`
+* Hubungkan sensor dan relay sesuai pin konfigurasi.
+* Sesuaikan WiFi dan MQTT broker pada file konfigurasi.
+* Upload firmware dengan PlatformIO atau Arduino IDE.
 
-3. **Flutter App**
-   - Pastikan Flutter SDK terinstall dan path sudah dikonfigurasi
-   - Jalankan aplikasi di emulator, browser atau perangkat fisik:
-     ```bash
-     cd flutter_app
-     flutter pub get
-     
-     # Untuk mobile
-     flutter run
-     
-     # Untuk web
-     flutter run -d chrome
-     ```
-   - Pastikan backend Golang berjalan terlebih dahulu agar data dapat diambil
+```bash
+cd hydroponic_controller
+pio run --target upload
+```
+
+### 2. Backend Golang
+
+* Pastikan Go sudah terinstal.
+* Jalankan backend server:
+
+```bash
+cd golang_backend
+go mod tidy
+go run main.go
+```
+
+* API tersedia di: `http://localhost:8080/getSensorData`
+
+### 3. Flutter App
+
+* Pastikan Flutter SDK terpasang.
+* Install dependencies dan jalankan aplikasi:
+
+```bash
+cd flutter_app
+flutter pub get
+flutter run
+```
 
 ---
 
@@ -98,46 +98,47 @@ Sistem ini dirancang untuk memudahkan pertanian hidroponik dengan otomatisasi be
 
 https://github.com/user-attachments/assets/5091ad32-4771-4685-b755-3fd2159be740
 
-### Fitur UI
-
-- **Tab Grafik**: Menampilkan tren data suhu dan TDS dalam bentuk grafik garis untuk analisis perubahan waktu
-- **Tab Sensor Data**: Menampilkan data terkini dari semua sensor dengan indikator visual
-- **Tab Control Status**: Menampilkan status perangkat relay (ON/OFF) yang terhubung dengan sistem
-- **Status Panel**: Menunjukkan kondisi TDS dengan kode warna (hijau=ideal, merah=terlalu tinggi, kuning=terlalu rendah)
+* Grafik real-time untuk suhu, TDS, dan parameter lainnya
+* Status sensor dan perangkat relay dengan warna indikator
+* Tab kontrol perangkat (pompa air, pompa nutrisi, lampu)
+* UI minimalis, modern, dan mudah digunakan
 
 ---
 
 ## Detail Teknis
 
-### Komponen Hardware
-- **ESP32**: Controller utama yang membaca sensor dan mengontrol relay
-- **Sensor DHT22**: Mengukur suhu udara dan kelembaban
-- **Sensor DS18B20**: Mengukur suhu air (waterproof)
-- **Sensor TDS**: Mengukur konsentrasi nutrisi dalam larutan (Total Dissolved Solids)
-- **Sensor pH**: Mengukur tingkat keasaman larutan
-- **LDR (Light Dependent Resistor)**: Mengukur intensitas cahaya
-- **Relay Module**: Mengontrol pompa air bersih, pompa nutrisi, dan lampu grow light
+### Hardware
+
+| Komponen       | Fungsi                                  |
+| -------------- | --------------------------------------- |
+| ESP32          | Kontrol utama dan pengirim data MQTT    |
+| Sensor DHT22   | Suhu udara dan kelembaban               |
+| Sensor DS18B20 | Suhu air                                |
+| Sensor TDS     | Konsentrasi nutrisi larutan             |
+| Sensor pH      | Tingkat keasaman larutan                |
+| Sensor LDR     | Intensitas cahaya                       |
+| Relay Module   | Mengendalikan pompa air, nutrisi, lampu |
 
 ### Arsitektur Sistem
+
 ```
-+-------------+        +----------------+        +----------------+
-|   ESP32     |        |  MQTT Broker   |        |  Golang Server |
-| (Publisher) +------->+ (EMQX Public) +------->+  (Subscriber)  |
-+-------------+        +----------------+        +-------+--------+
-                                                        |
-                                                        v
-                                                +----------------+
-                                                |  Flutter App   |
-                                                |  (Frontend)    |
-                                                +----------------+
++-------------+      +----------------+      +----------------+
+|   ESP32     | ---> |  MQTT Broker   | ---> |  Backend Go    |
++-------------+      +----------------+      +-------+--------+
+                                               |
+                                               v
+                                       +----------------+
+                                       |  Flutter App   |
+                                       +----------------+
 ```
 
-### Protokol Komunikasi
-- **MQTT**: Digunakan antara ESP32 dan server Golang (topik: /sdh-auto-hydroponic)
-- **HTTP**: Digunakan antara server Golang dan aplikasi Flutter (RESTful API)
+### Komunikasi
 
-### Format Data
-Data dikirimkan dalam format JSON dengan struktur:
+* MQTT untuk pengiriman data sensor dari ESP32 ke server.
+* REST API antara backend dan aplikasi Flutter.
+
+### Data JSON
+
 ```json
 {
   "temperature": 27.9,
@@ -153,40 +154,45 @@ Data dikirimkan dalam format JSON dengan struktur:
 }
 ```
 
-### Logic Otomasi
-- Jika TDS > 1200 ppm: Aktifkan pompa air bersih untuk pengenceran
-- Jika TDS < 650 ppm: Aktifkan pompa nutrisi untuk menambah konsentrasi
-- Jika intensitas cahaya < 1500: Aktifkan lampu grow light
+---
+
+## Logic Otomasi
+
+| Kondisi TDS / Cahaya     | Aksi Otomatis                        |
+| ------------------------ | ------------------------------------ |
+| TDS > 1200 ppm           | Pompa air bersih aktif (pengenceran) |
+| TDS < 650 ppm            | Pompa nutrisi aktif                  |
+| Intensitas cahaya < 1500 | Lampu grow light menyala             |
 
 ---
 
-## Identitas Pembuat
+## Tim Pengembang
 
 **Kelompok 4 - Mata Kuliah Internet of Things (IoT)**
 
-* **Sifa Imania Nurul Hidayah** (2312084)
-* **Dina Agustina** (2303573)
-* **Hafsah Hamidah** (2311474)
+* Sifa Imania Nurul Hidayah (2312084)
+* Dina Agustina (2303573)
+* Hafsah Hamidah (2311474)
 
 ---
 
-## Pengembangan Masa Depan
+## Pengembangan Selanjutnya
 
-Beberapa ide untuk pengembangan sistem di masa mendatang:
+* **Notifikasi push/email** untuk alert parameter kritis
+* **Database historis** untuk analisis jangka panjang
+* **Manual override** lewat aplikasi
+* **Machine learning** untuk prediksi dan optimasi nutrisi
+* **Integrasi kamera** untuk monitoring visual tanaman
+* **Multi-sistem** untuk pengelolaan banyak hidroponik sekaligus
 
-- **Notifikasi**: Implementasi sistem notifikasi push/email saat parameter di luar ambang batas yang aman
-- **Historis Data**: Penyimpanan data jangka panjang menggunakan database (PostgreSQL/MongoDB) 
-- **Control Manual**: Kemampuan untuk override kontrol otomatis dari aplikasi
-- **Machine Learning**: Implementasi prediksi pertumbuhan dan optimasi nutrisi berdasarkan data historis
-- **Kamera**: Integrasi kamera untuk monitoring visual tanaman
-- **Multiple Systems**: Kemampuan untuk mengelola beberapa sistem hidroponik sekaligus
+---
 
 ## Referensi
 
-- [ESP32 Arduino Core Documentation](https://docs.espressif.com/projects/arduino-esp32/)
-- [MQTT Protocol Documentation](https://mqtt.org/mqtt-specification/)
-- [Flutter Documentation](https://docs.flutter.dev/)
-- [Golang Documentation](https://golang.org/doc/)
+* [ESP32 Arduino Core](https://docs.espressif.com/projects/arduino-esp32/)
+* [MQTT Protocol](https://mqtt.org/mqtt-specification/)
+* [Flutter](https://docs.flutter.dev/)
+* [Golang](https://golang.org/doc/)
 
 ---
 

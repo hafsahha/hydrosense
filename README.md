@@ -96,7 +96,7 @@ Sistem ini dirancang untuk memudahkan pertanian hidroponik dengan otomatisasi be
 
 ## Tampilan Aplikasi 
 
-![Tampilan Aplikasi Hidroponik](https://github.com/user-attachments/assets/5091ad32-4771-4685-b755-3fd2159be740)
+https://github.com/user-attachments/assets/5091ad32-4771-4685-b755-3fd2159be740
 
 ### Fitur UI
 

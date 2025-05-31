@@ -23,12 +23,16 @@ class SensorDashboard extends StatefulWidget {
 }
 
 class _SensorDashboardState extends State<SensorDashboard>
-    with SingleTickerProviderStateMixin {
-  String temperature = "--";
+    with SingleTickerProviderStateMixin {  String temperature = "--";
   String humidity = "--";
   String tds = "--";
   String light = "--";
   String ph = "--";
+  String waterTemp = "--";
+  bool relayAirBersih = false;
+  bool relayNutrisi = false;
+  bool relayLampu = false;
+  String lastUpdated = "";
   bool loading = true;
 
   late TabController _tabController;
@@ -37,13 +41,12 @@ class _SensorDashboardState extends State<SensorDashboard>
   final List<FlSpot> tempSpots = [];
   final List<FlSpot> tdsSpots = [];
   int timeIndex = 0;
-
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this); // Changed from 2 to 3 tabs
     fetchData();
-    _timer = Timer.periodic(Duration(minutes: 1), (_) => fetchData());
+    _timer = Timer.periodic(Duration(seconds: 10), (_) => fetchData()); // More frequent updates
   }
 
   @override
@@ -52,20 +55,29 @@ class _SensorDashboardState extends State<SensorDashboard>
     _tabController.dispose();
     super.dispose();
   }
-
   Future<void> fetchData() async {
+    if (!mounted) return;
+    
     setState(() => loading = true);
     try {
-      final response =
-          await http.get(Uri.parse('http://localhost:8080/getSensorData'));
+      // Using 10.0.2.2 for Android emulator to access host's localhost
+      // For real devices, you'll need to use actual IP address of your Go backend
+      final url = 'http://localhost:8080/getSensorData';
+      final response = await http.get(Uri.parse(url))
+          .timeout(Duration(seconds: 5)); // Add timeout
+          
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        setState(() {
-          temperature = (data['temperature'] ?? "--").toString();
+        setState(() {          temperature = (data['temperature'] ?? "--").toString();
           humidity = (data['humidity'] ?? "--").toString();
           tds = (data['tds'] ?? "--").toString();
           light = (data['light'] ?? "--").toString();
-          ph = (data['pH'] ?? "--").toString();
+          ph = (data['ph'] ?? "--").toString(); // Changed from 'pH' to 'ph' to match ESP32 format
+          waterTemp = (data['water_temp'] ?? "--").toString();
+          relayAirBersih = data['relay_air_bersih'] ?? false;
+          relayNutrisi = data['relay_nutrisi'] ?? false;
+          relayLampu = data['relay_lampu'] ?? false;
+          lastUpdated = data['timestamp'] ?? DateTime.now().toString();
           loading = false;
 
           double tempVal = double.tryParse(temperature) ?? 0;
@@ -78,9 +90,19 @@ class _SensorDashboardState extends State<SensorDashboard>
         });
       } else {
         setState(() => loading = false);
+      }    } catch (e) {
+      if (mounted) {
+        setState(() => loading = false);
+        
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error fetching data: $e"),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+          ),
+        );
       }
-    } catch (e) {
-      setState(() => loading = false);
       print("Error fetching data: $e");
     }
   }
@@ -163,6 +185,36 @@ class _SensorDashboardState extends State<SensorDashboard>
     );
   }
 
+  Widget buildRelayStatusCard(String title, bool isOn) {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+      elevation: 4,
+      child: ListTile(
+        leading: Icon(
+          isOn ? Icons.power : Icons.power_off,
+          size: 40,
+          color: isOn ? Colors.green : Colors.red,
+        ),
+        title: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+        trailing: Container(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: isOn ? Colors.green.withOpacity(0.2) : Colors.red.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            isOn ? "ON" : "OFF",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: isOn ? Colors.green : Colors.red,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     double tdsValue = double.tryParse(tds) ?? -1;
@@ -175,17 +227,16 @@ class _SensorDashboardState extends State<SensorDashboard>
           width: 250,
           height: 250,
           child: Image.asset('assets/logo.png'),
-        ),
-        bottom: TabBar(
+        ),        bottom: TabBar(
           controller: _tabController,
           tabs: [
             Tab(icon: Icon(Icons.show_chart), text: "Grafik"),
-            Tab(icon: Icon(Icons.info), text: "Data & Status"),
+            Tab(icon: Icon(Icons.info), text: "Sensor Data"),
+            Tab(icon: Icon(Icons.power), text: "Control Status"),
           ],
         ),
-      ),
-      body: loading
-          ? Center(child: CircularProgressIndicator())
+      ),      body: loading
+          ? Center(child: CircularProgressIndicator(color: Colors.teal))
           : Column(
               children: [
                 Container(
@@ -211,8 +262,7 @@ class _SensorDashboardState extends State<SensorDashboard>
                       )
                     ],
                   ),
-                ),
-                Expanded(
+                ),                Expanded(
                   child: TabBarView(
                     controller: _tabController,
                     children: [
@@ -229,10 +279,35 @@ class _SensorDashboardState extends State<SensorDashboard>
                           buildCard(
                               "Temperature (°C)", temperature, Icons.thermostat, Colors.red),
                           buildCard(
+                              "Water Temp (°C)", waterTemp, Icons.pool, Colors.cyan),
+                          buildCard(
                               "Humidity (%)", humidity, Icons.water_drop, Colors.blue),
                           buildCard("TDS (ppm)", tds, Icons.opacity, Colors.green),
                           buildCard("Light (LDR)", light, Icons.wb_sunny, Colors.amber),
                           buildCard("pH Level", ph, Icons.science, Colors.purple),
+                        ],
+                      ),
+                      ListView(
+                        children: [
+                          buildRelayStatusCard("Air Bersih Pump", relayAirBersih),
+                          buildRelayStatusCard("Nutrisi Pump", relayNutrisi),
+                          buildRelayStatusCard("Lampu Grow Light", relayLampu),
+                          Card(
+                            margin: EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+                            elevation: 4,
+                            child: Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("Last Updated", 
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                  SizedBox(height: 8),
+                                  Text(lastUpdated),
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ],

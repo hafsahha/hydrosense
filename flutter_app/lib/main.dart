@@ -4,13 +4,13 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:fl_chart/fl_chart.dart';
 
-void main() => runApp(HydroponicApp());
+void main() => runApp(PantaniZzApp());
 
-class HydroponicApp extends StatelessWidget {
+class PantaniZzApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Hydroponic Monitor',
+      title: 'PantaniZz Monitor',
       theme: ThemeData(primarySwatch: Colors.teal),
       home: SensorDashboard(),
     );
@@ -218,21 +218,19 @@ class _SensorDashboardState extends State<SensorDashboard>
   @override
   Widget build(BuildContext context) {
     double tdsValue = double.tryParse(tds) ?? -1;
-    final tdsStatus = getTdsStatus(tdsValue);
-
-    return Scaffold(
+    final tdsStatus = getTdsStatus(tdsValue);    return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: SizedBox(
-          width: 250,
-          height: 250,
-          child: Image.asset('assets/logo.png'),
-        ),        bottom: TabBar(
+        title: Image.asset(
+          'assets/logo.png',
+          height: 40,
+          fit: BoxFit.contain,
+        ),bottom: TabBar(
           controller: _tabController,
           tabs: [
             Tab(icon: Icon(Icons.show_chart), text: "Grafik"),
-            Tab(icon: Icon(Icons.info), text: "Sensor Data"),
-            Tab(icon: Icon(Icons.power), text: "Control Status"),
+            Tab(icon: Icon(Icons.sensors), text: "Sensor Data"),
+            Tab(icon: Icon(Icons.power_settings_new), text: "Status Kontrol"),
           ],
         ),
       ),      body: loading

@@ -1,10 +1,10 @@
-# Pantanizz – Sistem Monitoring & Otomatisasi Hidroponik Kekinian
+# PantaniZz – Sistem Monitoring & Otomatisasi Hidroponik Kekinian
 
-**Pantanizz** adalah sistem monitoring dan otomatisasi hidroponik berbasis IoT yang membantu kamu **pantau tani secara real-time, kapan saja, di mana saja — bahkan sambil tidur!** Dengan teknologi sensor canggih dan aplikasi mobile berbasis Flutter, Pantanizz memudahkan pengelolaan hidroponik secara otomatis, efisien, dan modern.
+**PantaniZz** adalah sistem monitoring dan otomatisasi hidroponik berbasis IoT yang membantu kamu **pantau tani secara real-time, kapan saja, di mana saja — bahkan sambil tidur!** Dengan teknologi sensor canggih dan aplikasi mobile berbasis Flutter, PantaniZz memudahkan pengelolaan hidroponik secara otomatis, efisien, dan modern.
 
 ---
 
-## Filosofi Nama Pantanizz
+## Filosofi Nama PantaniZz
 
 * **Pan** = *Pantau* — Fokus pada pemantauan kondisi tanaman dan lingkungan secara real-time.
 * **Tani** = *Tani* — Merujuk pada pertanian, khususnya hidroponik modern.
@@ -46,12 +46,18 @@ Tagline:
 
 ## Struktur Repo
 
-* `/hydroponic_controller`
-  Firmware ESP32 untuk pembacaan sensor, kontrol relay, dan komunikasi MQTT.
-* `/golang_backend`
-  Backend Golang yang menerima data MQTT, menyimpan, dan menyediakan REST API untuk aplikasi.
-* `/flutter_app`
-  Aplikasi mobile/web Flutter untuk monitoring dan kontrol sistem secara real-time.
+* `/hydroponic_controller` - Firmware ESP32
+  * `src/main.cpp` - Program utama untuk membaca sensor dan kontrol relay
+  * Menggunakan PlatformIO untuk manajemen dependensi dan upload firmware
+  
+* `/golang_backend` - Server backend Golang
+  * `main.go` - Server Go untuk MQTT client dan REST API
+  * Menggunakan library paho.mqtt untuk komunikasi broker MQTT
+  
+* `/flutter_app` - Aplikasi mobile/web Flutter
+  * `lib/main.dart` - Aplikasi untuk visualisasi data dan monitor status
+  * `assets/logo.png` - Logo PantaniZz
+  * Menggunakan fl_chart untuk visualisasi grafik
 
 ---
 
@@ -59,49 +65,72 @@ Tagline:
 
 ### 1. Firmware ESP32
 
-* Hubungkan sensor dan relay sesuai pin konfigurasi.
-* Sesuaikan WiFi dan MQTT broker pada file konfigurasi.
-* Upload firmware dengan PlatformIO atau Arduino IDE.
+* Hubungkan sensor dan relay sesuai konfigurasi pin berikut:
+  * DHT22 (Temp & humidity): Pin 23
+  * DS18B20 (Water temp): Pin 25
+  * TDS Sensor: Pin 33
+  * pH Sensor: Pin 34
+  * LDR Sensor: Pin 32
+  * Relay Air Bersih: Pin 19
+  * Relay Nutrisi: Pin 18
+  * Relay Lampu: Pin 5
 
-```bash
-cd hydroponic_controller
-pio run --target upload
-```
+* Sesuaikan kredensial WiFi dan MQTT di kode:
+  ```cpp
+  const char* ssid = "nama_wifi_anda";
+  const char* password = "password_wifi_anda";
+  const char* mqttServer = "broker.emqx.io";
+  ```
+
+* Upload firmware dengan PlatformIO atau Arduino IDE:
+
+  ```bash
+  cd hydroponic_controller
+  pio run --target upload
+  ```
 
 ### 2. Backend Golang
 
-* Pastikan Go sudah terinstal.
-* Jalankan backend server:
+* Pastikan Go sudah terinstal (v1.16 atau lebih baru).
+* Download dependensi dan jalankan server:
 
-```bash
-cd golang_backend
-go mod tidy
-go run main.go
-```
+  ```bash
+  cd golang_backend
+  go mod tidy
+  go run main.go
+  ```
 
-* API tersedia di: `http://localhost:8080/getSensorData`
+* Server berjalan di port 8080 dengan endpoint:
+  * GET `/getSensorData` - Mendapatkan data sensor terbaru
 
 ### 3. Flutter App
 
-* Pastikan Flutter SDK terpasang.
+* Pastikan Flutter SDK terpasang (versi 3.0 atau lebih baru).
 * Install dependencies dan jalankan aplikasi:
 
-```bash
-cd flutter_app
-flutter pub get
-flutter run
-```
+  ```bash
+  cd flutter_app
+  flutter pub get
+  
+  # Untuk browser (rekomendasi untuk testing)
+  flutter run -d chrome
+  
+  # Untuk perangkat mobile
+  flutter run
+  ```
+
+* Aplikasi secara otomatis mengambil data dari backend setiap 10 detik
 
 ---
 
 ## Tampilan Aplikasi 
 
-https://github.com/user-attachments/assets/5091ad32-4771-4685-b755-3fd2159be740
+![Tampilan Aplikasi PantaniZz](https://github.com/user-attachments/assets/5091ad32-4771-4685-b755-3fd2159be740)
 
-* Grafik real-time untuk suhu, TDS, dan parameter lainnya
-* Status sensor dan perangkat relay dengan warna indikator
-* Tab kontrol perangkat (pompa air, pompa nutrisi, lampu)
-* UI minimalis, modern, dan mudah digunakan
+* **Tab Grafik** - Visualisasi real-time untuk suhu dan TDS dalam bentuk grafik
+* **Tab Sensor Data** - Menampilkan data sensor (suhu, kelembaban, TDS, pH, cahaya, suhu air)
+* **Tab Control Status** - Monitoring status perangkat (pompa air, pompa nutrisi, lampu grow)
+* **Status Panel** - Indikator kualitas nutrisi dengan kode warna intuitif (hijau = baik)
 
 ---
 
@@ -139,6 +168,22 @@ https://github.com/user-attachments/assets/5091ad32-4771-4685-b755-3fd2159be740
 
 ### Data JSON
 
+Data yang dikirim oleh ESP32:
+```json
+{
+  "temperature": 27.9,
+  "humidity": 76.2,
+  "tds": 850.0,
+  "light": 2100,
+  "ph": 6.5,
+  "water_temp": 25.8,
+  "relay_air_bersih": false,
+  "relay_nutrisi": false,
+  "relay_lampu": true
+}
+```
+
+Data yang disediakan oleh Backend Golang (dengan timestamp):
 ```json
 {
   "temperature": 27.9,

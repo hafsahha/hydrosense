@@ -125,7 +125,7 @@ Tagline:
 
 ## Tampilan Aplikasi 
 
-![Tampilan Aplikasi PantaniZz](https://github.com/user-attachments/assets/5091ad32-4771-4685-b755-3fd2159be740)
+<!-- ![Tampilan Aplikasi PantaniZz](https://github.com/user-attachments/assets/5091ad32-4771-4685-b755-3fd2159be740) -->
 
 * **Tab Grafik** - Visualisasi real-time untuk suhu dan TDS dalam bentuk grafik
 * **Tab Sensor Data** - Menampilkan data sensor (suhu, kelembaban, TDS, pH, cahaya, suhu air)
